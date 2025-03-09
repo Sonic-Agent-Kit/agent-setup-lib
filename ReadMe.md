@@ -75,19 +75,6 @@ const agentSetup = new AgentSetup(initialState, llm);
   });
   ```
 
-<!-- - **createWorkflow({agents, llm, team_name, supervisor_prompt?, output_mode?, supervisor_name?, add_handoff_back_messages?})**: Creates a complete workflow with multiple agents and a supervisor.
-  ```typescript
-  const workflow = agentSetup.createWorkflow({
-    agents: [researchAgent, writerAgent],
-    llm: openAiLlm,
-    team_name: "ResearchTeam",
-    supervisor_prompt: "Coordinate research and writing tasks",
-    output_mode: "last_message",
-    supervisor_name: "ResearchTeam_Team_Supervisor",
-    add_handoff_back_messages: true
-  });
-  ```
-  -->
   ```typescript
   const teamWorkflow = agentSetup.createTeamWorkflow({
     teams: [researchTeam, writingTeam],
@@ -192,23 +179,10 @@ async function demo() {
     // 3. Initialize the checkpointer
     const saver = await mongoHandler.initSaver("multiAgentDB", "checkpoints");
 
-    // 4. Create an initial agent state
-    const initialState = {
-      messages: [
-        new HumanMessage({
-          content: "Hello, starting multi-agent workflow.",
-        }),
-      ],
-      team_members: [],
-      next: "supervisor",
-      instructions: "Select the correct team member for the task",
-      stateOption: "",
-    };
+    // 4. Initialize AgentSetup with the agent state and the chat LLM instance
+    const agentSetup = new AgentSetup(chatLlm.instance, saver);
 
-    // 5. Initialize AgentSetup with the agent state and the chat LLM instance
-    const agentSetup = new AgentSetup(initialState, chatLlm.instance, saver);
-
-    // 6. Create specialized agents
+    // 5. Create specialized agents
     const webSearchAgent = agentSetup.createAgent({
       team_members: ["Web_Search", "Web_Scrape"],
       tools: [tavilyTool],
